@@ -6,9 +6,9 @@ function [ essGenes ] = findESSGenesFromCModel( cmodel, threshold, clRatio )
 % determine whether that gene is considered as essential gene
 % essGenes: output --- a list of indexes of essential genes
 
-[geneNum, celllines] = size(cmodel.ESS);
+[geneNum, cellLines] = size(cmodel.ESS);
 
-essGenes = cmodel.genes_ess(sum((cmodel.ESS < threshold) == 1, 2) >= celllines * clRatio);
+essGenes = cmodel.genes_ess(sum((cmodel.ESS < threshold) == 1, 2) >= cellLines * clRatio);
 
 end
 
