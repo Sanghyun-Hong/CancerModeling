@@ -37,6 +37,12 @@ genesToRem = findGenesToRemove(her2data, others, true);
 % find rxns from genes
 rxnsToRem = findRxnsWithGenesFromMModel(r1model, genesToRem);
 
-% TODO: modify a model by removing each reaction from the list
+for i = 1:length(rxnToRem)
+  mmodel = r1model;
+  % modify a model by removing each reaction from the list
+  rxnName = mmodel.rxns(rxnToRem(i));
+  mmodel = removeRxns(mmodel, rxnName);
 
-% TODO: calculate the accuracy of the modified model (by Mr. Hong)
+  % TODO: calculate the accuracy of the modified model (by Mr. Hong)
+  
+end

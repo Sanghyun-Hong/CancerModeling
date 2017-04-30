@@ -5,6 +5,7 @@ function [ foundRxns ] = findRxnsWithGenesFromMModel( mmodel, geneNames )
 geneIndexes = getGeneIndexFromMModel(mmodel, geneNames);
 
 sol = zeros(length(geneIndexes), 1);
+foundRxns = [];
 for i = 1:length(geneIndexes)
   gi = geneIndexes(i);
   foundRxns = [foundRxns; find(mmodel.rxnGeneMat(:,gi))];
