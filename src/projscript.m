@@ -26,7 +26,7 @@ essGenes = findESSGenesFromCancerData(cdata, threshold, cellineRatio);
 %[r1essGeneIndexes, r1Sol, r1optSol] = checkESSinMModel(r1model, method, essGenes);
 %[r2essGeneIndexes, r2Sol, r2optSol] = checkESSinMModel(r2model, method, essGenes);
 
-% TODO: first calculate the accuracy (by Mr. Hong)
+% TODO: first calculate the base accuracy (by Mr. Hong)
 
 
 % choose the lower expression genes from HER2
@@ -34,4 +34,9 @@ essGenes = findESSGenesFromCancerData(cdata, threshold, cellineRatio);
 %             using average = false
 genesToRem = findGenesToRemove(her2data, others, true);
 
-% 
+% find rxns from genes
+rxnsToRem = findRxnsWithGenesFromMModel(r1model, genesToRem);
+
+% TODO: modify a model by removing each reaction from the list
+
+% TODO: calculate the accuracy of the modified model (by Mr. Hong)
