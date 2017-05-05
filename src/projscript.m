@@ -12,31 +12,25 @@ load(strcat(datasets_dir, 'recon2.mat'));
 cdata = ESSbrca;
 r1model = defineHumanMediaNCI60(recon1, '');
 %r2model = recon2;
-method = 'FBA';
-threshold = -0.5;
+method = 'FBA'; % FBA or MOMA
+threshold = -0.5; 
 cellineRatio = 0.9;
-bmDropRatio = 0.5;
-usingMedian = true;
-if usingMedian
-  lexprMethod = 'median';
-else
-  lexprMethod = 'average';
-end
+bmDropRatio = 0.9;
+lexprCompMethod = 'median'; % median or average
+exprDiffRatio = 0.01;
 
 % name a csv file
 deli = '_';
 ext = '.csv';
 csvfile = char(strcat(method, deli, string(threshold), deli, ...
-             string(cellineRatio), deli, lexprMethod, deli, ...
+             string(cellineRatio), deli, lexprCompMethod, deli, ...
              string(bmDropRatio), ext));
            
 % open a csv file to write the method
 fid = fopen(csvfile, 'w');
-% first write parameters in the first column
-
-
+% first write parameters in the first row
 fprintf(fid, '%s, %f, %f, %s, %f\n', method, threshold, cellineRatio, ...
-  lexprMethod, bmDropRatio);
+  lexprCompMethod, bmDropRatio);
 
 % get HER2 model
 [her2data, others] = getHER2fromCancerData(cdata);
@@ -57,14 +51,12 @@ fprintf(fid, '[ESSgenes of RECON1],');
 fprintf(fid, '%s,', toCSV{1:end-1});
 fprintf(fid, '%s\n', toCSV{end});
 
-        
 % TODO: first calculate the base accuracy (by Mr. Hong)
-
 
 % choose the lower expression genes from HER2
 % 3rd param:  using median = true
 %             using average = false
-genesToRem = findGenesToRemove(her2data, others, usingMedian);
+genesToRem = findGenesToRemove(her2data, others, lexprCompMethod, exprDiffRatio);
 
 % find rxns from genes
 rxnsToRem = findRxnsWithGenesFromMModel(r1model, genesToRem);
