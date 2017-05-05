@@ -10,7 +10,7 @@ load(strcat(datasets_dir, 'recon2.mat'));
 
 % initialize variables
 cdata = ESSbrca;
-r1model = recon1;
+r1model = defineHumanMediaNCI60(recon1, '');
 %r2model = recon2;
 method = 'FBA';
 threshold = -0.5;
@@ -58,6 +58,11 @@ genesToRem = findGenesToRemove(her2data, others, true);
 
 % find rxns from genes
 rxnsToRem = findRxnsWithGenesFromMModel(r1model, genesToRem);
+% write a list of reactions to remove from metabolic model
+toCSV = rxnsToRem';
+fprintf(fid, '[Rxns to Remove],');
+fprintf(fid, '%s,', toCSV{1:end-1});
+fprintf(fid, '%s\n', toCSV{end});
 
 for i = 1:length(rxnsToRem)
   mmodel = r1model;

@@ -1,4 +1,4 @@
-function [ essGenes ] = getESSGenesFromMModel( mmodel, method, bmDropRatio )
+function [ essGenesOfModel ] = getESSGenesFromMModel( mmodel, method, bmDropRatio )
 
 usingMOMA = -1;
 if strcmp(method, 'MOMA')
@@ -66,11 +66,12 @@ end
 % end
 
 essGenesIndexes = find(sol < optSol * (1 - bmDropRatio));
+essGenesOfModel = cell(sizeof(essGenesIndexes), 1);
 
 for i = 1:length(essGenesIndexes)
   gi = essGenesIndexes(i);
   % store a name of each essential gene
-  essGenes(i) = mmodel.genes_unique_names(mmodel.genes_unique_map(gi));
+  essGenesOfModel(i) = mmodel.genes_unique_names(mmodel.genes_unique_map(gi));
 end
 
 end
