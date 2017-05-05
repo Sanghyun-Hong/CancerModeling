@@ -2,7 +2,7 @@ function [ genesToRem ] = findGenesToRemove( her2data, others, usingMedian )
 
 % get the number of genes and cellines
 [her2GeneNum, her2CellineNum] = size(her2data.ESS);
-[otherGeneNum, othrCellineNum] = size(others.ESS);
+[otherGeneNum, otherCellineNum] = size(others.ESS);
 
 if usingMedian == true
   % choose the median value of data expression in each cancer type

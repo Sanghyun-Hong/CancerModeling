@@ -66,7 +66,7 @@ end
 % end
 
 essGenesIndexes = find(sol < optSol * (1 - bmDropRatio));
-essGenesOfModel = cell(size(essGenesIndexes), 1);
+essGenesOfModel = cell(size(essGenesIndexes, 1), 1);
 
 for i = 1:length(essGenesIndexes)
   gi = essGenesIndexes(i);
