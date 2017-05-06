@@ -1,10 +1,10 @@
 function [ genesToRem ] = findGenesToRemove( her2data, others, lexprCompMethod, diffRatio )
 
-if lexprCompMethod == 'median'
+if strcmp(lexprCompMethod, 'median')
   % choose the median value of data expression in each cancer type
   her2Expr = median(her2data.ESS, 2);
   otherExpr = median(others.ESS, 2);
-elseif lexprCompMethod == 'average'
+elseif strcmp(lexprCompMethod, 'average')
   % get the number of genes and cellines
   [her2GeneNum, her2CellineNum] = size(her2data.ESS);
   [otherGeneNum, otherCellineNum] = size(others.ESS);
