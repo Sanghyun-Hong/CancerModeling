@@ -1,4 +1,4 @@
-function [ essGenesOfModel ] = getESSGenesFromMModel( mmodel, method, bmDropRatio )
+function [ essGenes, notEssGenes ] = getESSGenesFromMModel( mmodel, method, foundGenesInds, bmDropRatio )
 
 usingMOMA = -1;
 if strcmp(method, 'MOMA')
@@ -20,13 +20,17 @@ else
   optSol = output.f;
 end
 
-for i = 1:length(mmodel.genes)
+essGenes = cell(length(foundGenesInds), 1);
+notEssGenes = cell(length(foundGenesInds), 1);
+
+for i = 1:length(foundGenesInds)
   modelC = mmodel;
-  geneExp = sprintf('x(%d)', i);
-  rxns = find(~cellfun(@isempty, strfind(mmodel.rules, geneExp)) > 0);
+  gi = foundGenesInds(i);
+  geneExp = sprintf('x(%d)', gi);
   
+  rxns = find(~cellfun(@isempty, strfind(mmodel.rules, geneExp)) > 0);
   x = ones(size(mmodel.genes));
-  x(i) = 0;
+  x(gi) = 0;
   
   for j = 1:length(rxns)
     rxnId = rxns(j);
@@ -39,12 +43,22 @@ for i = 1:length(mmodel.genes)
   
   if usingMOMA == 1
     [output, outputWT] = MOMA(mmodel, modelC);
-    sol(i) = output.f;
+    sol = output.f;
   else
-    FBAsol(i) = optimizeCbModel(modelC);
-    sol(i) = FBAsol(i).f;
+    FBAsol = optimizeCbModel(modelC);
+    sol = FBAsol.f;
+  end
+  
+  if sol < optSol * (1 - bmDropRatio)
+    essGenes(i) = mmodel.genes_unique_names(mmodel.genes_unique_map(gi));
+  else
+    notEssGenes(i) = mmodel.genes_unique_names(mmodel.genes_unique_map(gi));
   end
 end
+
+% compact cell arrays
+essGenes = essGenes(~cellfun('isempty', essGenes));
+notEssGenes = notEssGenes(~cellfun('isempty', notEssGenes));
 
 % for i = 1:length(mmodel.genes)
 %   modelC = mmodel;
@@ -64,15 +78,6 @@ end
 %     sol(i) = FBAsol(i).f;
 %   end
 % end
-
-essGenesIndexes = find(sol < optSol * (1 - bmDropRatio));
-essGenesOfModel = cell(size(essGenesIndexes, 1), 1);
-
-for i = 1:length(essGenesIndexes)
-  gi = essGenesIndexes(i);
-  % store a name of each essential gene
-  essGenesOfModel(i) = mmodel.genes_unique_names(mmodel.genes_unique_map(gi));
-end
 
 end
 
