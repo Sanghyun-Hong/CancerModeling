@@ -1,10 +1,7 @@
-function y = runProjectScript( dropRatio, exprCompMethod )
-
-% reset
-clear
+function runProjectScript( clRatio, dropRatio, exprCompMethod )
 
 % prefix direcotry for the datasets folder
-datasets_dir = '/Users/jun/workspace/CancerModeling/datasets/';
+datasets_dir = '';
 
 % load ESSbrca.mat
 load(strcat(datasets_dir, 'ESSbrca.mat'));
@@ -19,9 +16,9 @@ r1model = defineHumanMediaNCI60(recon1, '');
 %r2model = recon2;
 method = 'FBA'; % FBA or MOMA
 threshold = -0.5; 
-cellineRatio = 0.7;
-bmDropRatio = 0.3;
-lexprCompMethod = 'median'; % median or average
+cellineRatio = clRatio;
+bmDropRatio = dropRatio;
+lexprCompMethod = exprCompMethod; % median or average
 exprDiffRatio = 0.01;
 
 % name a csv file
@@ -161,5 +158,4 @@ end
 
 fclose(fid);
 
-return
 end
