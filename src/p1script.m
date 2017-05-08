@@ -2,11 +2,11 @@
 datasets_dir = '';
 
 % load ESSbrca.mat
-load(strcat(datasets_dir, 'ESSbrca.mat'));
+load(strcat(datasets_dir, '../datasets/ESSbrca.mat'));
 % load recon1.mat
-load(strcat(datasets_dir, 'recon1.mat'));
+load(strcat(datasets_dir, '../datasets/recon1.mat'));
 % load recon2.mat
-load(strcat(datasets_dir, 'recon2.mat'));
+load(strcat(datasets_dir, '../datasets/recon2.mat'));
 
 % initialize variables
 cmodel = ESSbrca;
