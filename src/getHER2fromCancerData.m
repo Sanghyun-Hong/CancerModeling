@@ -15,12 +15,16 @@ her2data = cdata;
 others = cdata;
 % Extract from cdata a list of cellines related to HER2
 relCellines = ismember(cdata.cellines, her2cl);
+
 % Extract HER2 cancer data
 her2data.cellines = cdata.cellines(relCellines);
 her2data.ESS = cdata.ESS(:, relCellines);
+her2data.GEcell = cdata.GEcell(:, relCellines);
+
 % Extract other cancer data
 others.cellines = cdata.cellines(not(relCellines));
 others.ESS = cdata.ESS(:, not(relCellines));
+others.GEcell = cdata.GEcell(:, not(relCellines));
 
 end
 
