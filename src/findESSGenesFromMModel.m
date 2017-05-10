@@ -19,7 +19,8 @@ for i = 1:length(model.genes)
 end
 
 
-essGenes = unique(model.genes_unique_map(find(sol < optBM * (1 - bmDropRatio))));
+essGeneidx = unique(model.genes_unique_map(find(sol < optBM * (1 - bmDropRatio))));
+essGenes = model.genes_unique_names(essGeneidx);
 
 end
 
