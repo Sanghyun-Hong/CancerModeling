@@ -1,7 +1,8 @@
 function runProjectScript( cellineRatio, essThreshold, bmDropRatio, pValThreshold )
 
 % prefix direcotry for the datasets folder
-datasets_dir = '';
+base_dir = '';
+datasets_dir = strcat(base_dir, 'datasets/');
 
 % load ESSbrca.mat
 load(strcat(datasets_dir, 'ESSbrca.mat'));
@@ -19,11 +20,12 @@ method = 'FBA'; % FBA or MOMA
 %exprDiffRatio = 0.01;
 
 % name a csv file
+result_dir = strcat(base_dir, 'results/');
 deli = '_';
 ext = '.csv';
-csvfile = char(strcat(method, deli, string(essThreshold), deli, ...
-             string(cellineRatio), deli, string(bmDropRatio), deli, ...
-             pValThreshold, ext));
+csvfile = char(strcat(result_dir, method, deli, string(essThreshold), ...
+             deli, string(cellineRatio), deli, string(bmDropRatio), ...
+             deli, string(pValThreshold), ext));
            
 % open a csv file to write the method
 fid = fopen(csvfile, 'w');
@@ -46,8 +48,8 @@ fprintf(fid, '%s,', toCSV{1:end-1});
 fprintf(fid, '%s\n', toCSV{end});
 
 % get a list of essGenes found in RECON1
-foundGeneInds = find(ismember(r1model.genes_unique_names, essGenes));
-foundGeneNames = r1model.genes_unique_names(foundGeneInds);
+foundGeneNames = r1model.genes_unique_names(...
+                    ismember(r1model.genes_unique_names, essGenes));
 % write a list of essential genes from HER cancer data into csv file
 toCSV = foundGeneNames';
 fprintf(fid, '<HER2 ESSgenes found in RECON1>,');
@@ -56,8 +58,28 @@ fprintf(fid, '%s\n', toCSV{end});
 
 % get essential genes of a metabolic model
 essGeneNames = findESSGenesFromMModel(r1model, bmDropRatio);
-fprintf(fid, '[DEFAULT RECON1]\n');
+
+% choose the low expression genes from HER2 --- deprecated 5/9/2017
+%genesToRem = findGenesToRemove(her2data, others, lexprCompMethod, exprDiffRatio);
+% Instead, we use p value to choose low expression gene data
+[interGenes, pvals] = getLowExprGenes(r1model, her2data, others);
+genesToRem = interGenes(pvals < pValThreshold);
+
+% find rxns from genes
+rxnsToRem = findRxnsWithGenesFromMModel(r1model, genesToRem, foundGeneNames);
+rxnNames = r1model.rxns(rxnsToRem);
+% write a list of reactions to remove from metabolic model
+toCSV = rxnNames';
+if ~isempty(toCSV)
+  fprintf(fid, 'Rxns to Remove,');
+  fprintf(fid, '%s,', toCSV{1:end-1});
+  fprintf(fid, '%s\n', toCSV{end});
+else
+  fprintf(fid, '\n');
+end
+
 % write a list of essential genes found in default metabolic model into csv file
+fprintf(fid, '[DEFAULT RECON1]\n');
 toCSV = essGeneNames';
 fprintf(fid, '<Essential>,');
 if ~isempty(toCSV)
@@ -67,20 +89,6 @@ else
   fprintf(fid, '\n');
 end
 
-% choose the low expression genes from HER2 --- deprecated 5/9/2017
-%genesToRem = findGenesToRemove(her2data, others, lexprCompMethod, exprDiffRatio);
-% Instead, we use p value to choose low expression gene data
-[interGenes, pvals] = getLowExprGenes(r1model, her2data, others);
-genesToRem = interGenes(pvals < pValThreshold);
-
-% find rxns from genes
-rxnsToRem = findRxnsWithGenesFromMModel(r1model, genesToRem, essGeneNames);
-rxnNames = r1model.rxns(rxnsToRem);
-% write a list of reactions to remove from metabolic model
-toCSV = rxnNames';
-fprintf(fid, 'Rxns to Remove,');
-fprintf(fid, '%s,', toCSV{1:end-1});
-fprintf(fid, '%s\n', toCSV{end});
 
 for i = 1:length(rxnNames)
   mmodel = r1model;
