@@ -29,34 +29,34 @@ def read_csv_results(filename):
         rxn_remove = None
         for idx, each_line in enumerate(csv_reader):
             # parameters read
-            if 0 <= idx < 6:
+            if 0 <= idx < 5:
                 param_value = each_line[1].strip()
                 if isfloat(param_value): param_value = float(param_value)
                 ret_data['parameters'][each_line[0]] = param_value
             # control data read
-            if idx == 6: 
+            if idx == 5: 
                 data = each_line[1:]
                 data = [each_data for each_data in data if each_data]
                 ret_data['controls']['ess']     = data
+            if idx == 6:
+                data = each_line[1:]
+                data = [each_data for each_data in data if each_data]
+                ret_data['controls']['ess-recon1'] = data
             if idx == 7:
                 data = each_line[1:]
                 data = [each_data for each_data in data if each_data]
-                ret_data['controls']['non-ess'] = data
+                ret_data['controls']['all-recon1'] = data
             # results data read (from 9th row)
             if idx > 8:
-                if idx % 3 == 0:
+                if idx % 2 == 1:
                     rxn_remove = each_line[0].strip()
                     rxn_remove = rxn_remove.replace('[', '')
                     rxn_remove = rxn_remove.replace(']', '')
                     ret_data['results'][rxn_remove] = {}
-                if idx % 3 == 1:
+                if idx % 2 == 0:
                     data = each_line[1:]
                     data = [each_data for each_data in data if each_data]
                     ret_data['results'][rxn_remove]['ess']     = data
-                if idx % 3 == 2:
-                    data = each_line[1:]
-                    data = [each_data for each_data in data if each_data]
-                    ret_data['results'][rxn_remove]['non-ess'] = data
             # end read
     return ret_data
 
@@ -66,22 +66,23 @@ def compute_fprtprs(result):
         'results'    : {},
     }
     # control sets
-    control_ess  = set(result['controls']['ess'])
-    control_ness = set(result['controls']['non-ess'])
+    her2_ess   = set(result['controls']['ess'])
+    recon1_all = set(result['controls']['all-recon1'])
+    her2_essr  = set(result['controls']['ess-recon1'])
+    her2_nessr = recon1_all - her2_essr
     # compute the fpr and tprs
     for each_rxn, each_data in result['results'].iteritems():
-        # compute TP, TN, FP, FN
+        # load the essential list
         cur_ess  = set(each_data['ess'])
-        cur_ness = set(each_data['non-ess'])
-        true_positive  = float(len(control_ess.intersection(cur_ess)))  / len(control_ess)
-        true_negative  = float(len(control_ness.intersection(cur_ness)))/ len(control_ness)
-        false_positive = float(len(control_ness.intersection(cur_ess))) / len(control_ness)
-        false_negative = float(len(control_ess.intersection(cur_ness))) / len(control_ess)
+        cur_ness = recon1_all - cur_ess
+        # compute TP, TN, FP, FN
+        true_positive  = len(cur_ess.intersection(her2_essr))
+        false_positive = len(cur_ess.intersection(her2_nessr))
+        false_negative = len(cur_ness.intersection(her2_essr))
+        true_negative  = len(cur_ness.intersection(her2_nessr))
         # compute tpr and fpr
-        cur_fpr = 0
-        if (true_positive + false_negative): cur_fpr = true_positive  / (true_positive + false_negative)
-        cur_tpr = 0
-        if (false_positive + true_negative): cur_tpr = false_positive / (false_positive + true_negative)
+        cur_fpr = float(false_positive) / len(her2_nessr)
+        cur_tpr = float(true_positive)  / len(her2_essr)
         # store
         ret_data['results'][each_rxn] = [cur_fpr, cur_tpr]
     return ret_data
@@ -115,13 +116,18 @@ def draw_roc_curve(rxn, fprs, tprs, auc):
     plt.clf()
     #Fin.
 
-def save_to_file(filename, rxn_fptps):
+def save_to_file(result):
+    cur_params  = result['parameters']
+    cur_results = result['results']
+
+    filename = '../evaluations/%s_%s_%s_%s_%s.txt' % \
+        (cur_params['method'], cur_params['ess threshold'], \
+         cur_params['celline ratio'], cur_params['biomass drop ratio'], \
+         cur_params['p value threshold'])
     with open(filename, 'wb') as outputfile:
-        for rxn, fptp in rxn_fptps.iteritems():
-            output_str = ['(%03.6f, %03.6f)' % (data[0], data[1]) for data in fptp]
-            outputfile.write('[%s] : \n' % (rxn))
-            for each_str in output_str:
-                outputfile.write('  %s\n' % (each_str))
+        for rxn, data in cur_results.iteritems():
+            output_str = '(%03.6f, %03.6f)' % (data[0], data[1])
+            outputfile.write('[%40s] : %s \n' % (rxn, output_str))
     #Fin.
 
 
@@ -143,28 +149,9 @@ def evaluations():
     res_fptps = [compute_fprtprs(each_res) for each_res in results]
     print '    [%4s] total results about fpr/tpr for each rxn ' % (len(res_fptps))
 
-    # compute the total reactions from results
-    rxn_total = extract_total_rxns(results)
-    print '    [%4s] total number of reactions ' % (len(rxn_total))
-
-    # aggregate the fpr/tprs per rxn
-    rxn_fptps = aggregate_fprtprs_per_rxn(rxn_total, res_fptps)
-    print '    [%4s] total number of reactions and fpr/tprs ' % (len(rxn_fptps))
-
     # draw the ROC curve with computed the AUC in each rxn
-    rxn_fprtpr= {}
-    for rxn, fprtprs in rxn_fptps.iteritems():
-        cur_fprs = [data[0] for data in fprtprs]
-        cur_tprs = [data[1] for data in fprtprs]
-        rxn_fprtpr[rxn] = fprtprs
-        # save it to figure and to file
-        #cur_auc  = auc(cur_fprs, cur_tprs, reorder=True)
-        #draw_roc_curve(rxn, cur_fprs, cur_tprs, cur_auc):
-    # end for ...
-
-    # save it to a file
-    save_to_file('../evaluations/rxn_fpr_tprs.txt', rxn_fprtpr)
-
+    for each_res in res_fptps:
+        save_to_file(each_res)
     print ' .. done '
     #Fin.
 
