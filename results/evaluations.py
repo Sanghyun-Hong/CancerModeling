@@ -81,8 +81,8 @@ def compute_fprtprs(result):
         false_negative = len(cur_ness.intersection(her2_essr))
         true_negative  = len(cur_ness.intersection(her2_nessr))
         # compute tpr and fpr
-        cur_fpr = float(true_positive)  / len(her2_essr)
-        cur_tpr = float(false_positive) / len(her2_nessr)
+        cur_fpr = float(false_positive) / len(her2_nessr)
+        cur_tpr = float(true_positive)  / len(her2_essr)
         # store
         ret_data['results'][each_rxn] = [cur_fpr, cur_tpr]
     return ret_data
