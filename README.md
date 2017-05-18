@@ -1,5 +1,7 @@
 # CancerModeling - CMSC703 @ UMD
 
+NOTE: All of our source codes and results may be found in https://github.com/Sanghyun-Hong/CancerModeling
+
 ## Functions related to cancer data
 - findESSGenesFromCancerData.m: get a list of essential genes from a given cancer data (using threshold score value)
 - getHER2fromCancerData.m: extract HER2 cancer type from a given cancer data (assuming ESSbrca is given)
