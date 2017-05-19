@@ -3,7 +3,7 @@ clear;
 clRatio = 0.9;
 essThreshold = -0.5;
 bmDropRatio = 0.1;
-pValThreshold = 0.01;
+pValThreshold = 0.03;
 
 runProjectScript(clRatio, essThreshold, bmDropRatio, pValThreshold);
 

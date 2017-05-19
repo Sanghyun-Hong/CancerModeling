@@ -56,6 +56,13 @@ fprintf(fid, '<HER2 ESSgenes found in RECON1>,');
 fprintf(fid, '%s,', toCSV{1:end-1});
 fprintf(fid, '%s\n', toCSV{end});
 
+% write a list of all genes of RECON1 into csv file
+recon1Genes = r1model.genes_unique_names;
+toCSV = recon1Genes';
+fprintf(fid, '<RECON1 All Genes>,');
+fprintf(fid, '%s,', toCSV{1:end-1});
+fprintf(fid, '%s\n', toCSV{end});
+
 % get essential genes of a metabolic model
 essGeneNames = findESSGenesFromMModel(r1model, bmDropRatio);
 
