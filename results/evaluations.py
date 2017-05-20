@@ -120,15 +120,15 @@ def save_to_file(result):
     cur_params  = result['parameters']
     cur_results = result['results']
 
-    filename = '../evaluations/%s_%s_%s_%s_%s.txt' % \
+    filename = '../evaluations/%s_%s_%s_%s_%s.csv' % \
         (cur_params['method'], cur_params['ess threshold'], \
          cur_params['celline ratio'], cur_params['biomass drop ratio'], \
          cur_params['p value threshold'])
     with open(filename, 'wb') as outputfile:
-        outputfile.write('[Reaction removed]: (FP-rate, TP-rate) \n')
+        outputfile.write('Reaction removed, FP-rate, TP-rate \n')
         for rxn, data in cur_results.iteritems():
-            output_str = '(%03.6f, %03.6f)' % (data[0], data[1])
-            outputfile.write('[%40s] : %s \n' % (rxn, output_str))
+            output_str = '%03.6f, %03.6f' % (data[0], data[1])
+            outputfile.write('%s , %s \n' % (rxn, output_str))
     #Fin.
 
 
