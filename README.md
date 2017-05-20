@@ -17,4 +17,4 @@
 ## Scripts
 - finalScript.m: a script for our project work (you only need to execute this file)
 - runProjectScript.m: a function/script that contains the procedures of our algorithm (it is called by finalScript.m)
-- evaluations.py: a python script to calculate the accuracy of a wile-type model and all modified models
+- evaluations.py: a python script to calculate the accuracy of a wile-type model and all modified models (located in the results folder)
